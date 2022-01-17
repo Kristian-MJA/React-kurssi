@@ -14,6 +14,7 @@ function App2() {
 	//true tarkoittaa, että X aloittaa
 	const [kierrokset, setKierrokset] = useState(0);
 
+	// 3x3 ------------------------------------------------------
 	const [pelilauta, setPelilauta] = useState([
 		{ nappula: nap.tyhja, paikka: 0 },
 		{ nappula: nap.tyhja, paikka: 1 },
@@ -50,14 +51,20 @@ function App2() {
 		[0, 4, 8],
 		[2, 4, 6]
 	];
+	// ----------------------------------------------------------
+
 	/*
-			["x","x","x","x","x"]	=> 10000
-			["x","x","x","x"]			=> 5000
-			["x","x"," ","x","x"] => 3000
-			["x","x"," ","x"]			=> 100
-			["x","x","x"]					=> 60
-			["x","x"]							=> 30
-	 */
+	["x","x","x","x","x"]	=> 10000
+	["x","x","x","x"]			=> 5000
+	["x","x"," ","x","x"] => 3000
+	["x","x"," ","x"]			=> 100
+	["x","x","x"]					=> 60
+	["x","x"]							=> 30
+	*/
+
+	// 5x5 ("ÄÄRETÖN" RUUDUKKO) ---------------------------------
+
+	// ----------------------------------------------------------
 
 	function voittaakoTämäPelaaja(lauta, pelaaja) {
 		return voittorivit.some(x => {
