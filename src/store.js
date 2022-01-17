@@ -1,113 +1,187 @@
 // store.js
-import React, {createContext, useReducer} from 'react';
+import React, { createContext, useReducer } from 'react';
 
 const Pelitila = {
-
-    NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
-    NIMI_O_MUUTTUI: 'NIMI_O_MUUTTUI',
-    ALOITA_PAINETTU: 'ALOITA_PAINETTU',
-    RUUTU_VALITTU: 'RUUTU_VALITTU',
-    PELI_OHI: 'PELI_OHI'
-}
-const voittorivit =
-    [[0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]]
-
-const nap = {
-    x: "X",
-    o: "O",
-    tyhja: " "
+	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
+	NIMI_O_MUUTTUI: 'NIMI_O_MUUTTUI',
+	ALOITA_PAINETTU: 'ALOITA_PAINETTU',
+	RUUTU_VALITTU: 'RUUTU_VALITTU',
+	PELI_OHI: 'PELI_OHI'
 };
+
+const voittorivit = [
+	[0, 1, 2],
+	[3, 4, 5],
+	[6, 7, 8],
+	[0, 3, 6],
+	[1, 4, 7],
+	[2, 5, 8],
+	[0, 4, 8],
+	[2, 4, 6]
+];
+
+const nap = { x: "X", o: "O", tyhja: " " };
+
 const initialState = {
-    pelilauta:
-        [{ nappula: nap.tyhja, paikka: 0 }, { nappula: nap.tyhja, paikka: 1 }, { nappula: nap.tyhja, paikka: 2 },
-        { nappula: nap.tyhja, paikka: 3 }, { nappula: nap.tyhja, paikka: 4 }, { nappula: nap.tyhja, paikka: 5 },
-        { nappula: nap.tyhja, paikka: 6 }, { nappula: nap.tyhja, paikka: 7 }, { nappula: nap.tyhja, paikka: 8 }],
-    tila: Pelitila.NIMET_PUUTTEELLISET, pelaajat: ["",""], pelivuoroX: true, voittaja: -1, peliKäynnissä: false
-}
+	pelilauta: [
+		{ nappula: nap.tyhja, paikka: 0 },
+		{ nappula: nap.tyhja, paikka: 1 },
+		{ nappula: nap.tyhja, paikka: 2 },
+		{ nappula: nap.tyhja, paikka: 3 },
+		{ nappula: nap.tyhja, paikka: 4 },
+		{ nappula: nap.tyhja, paikka: 5 },
+		{ nappula: nap.tyhja, paikka: 6 },
+		{ nappula: nap.tyhja, paikka: 7 },
+		{ nappula: nap.tyhja, paikka: 8 }
+	],
+	tila: Pelitila.NIMET_PUUTTEELLISET,
+	pelaajat: ["", ""],
+	pelivuoroX: true,
+	voittaja: -1,
+	peliKäynnissä: false
+};
 
 const voittaakoTämäPelaaja = (lauta, pelaaja) => {
-
-    return voittorivit.some(x => {
-        if (lauta[x[0]] != nap.tyhja
-            && lauta[x[0]].nappula == pelaaja
-            && lauta[x[1]].nappula == pelaaja
-            && lauta[x[2]].nappula == pelaaja) {
-            return true
-        }
-    });
-}
+	return voittorivit.some(x => {
+		let voitto = false;
+		if (lauta[x[0]] !== nap.tyhja
+			&& lauta[x[0]].nappula === pelaaja
+			&& lauta[x[1]].nappula === pelaaja
+			&& lauta[x[2]].nappula === pelaaja) {
+			voitto = true;
+		};
+		return voitto;
+	});
+};
 
 //const initialState = {};
 const store = createContext(initialState);
 const { Provider } = store;
 
-const StateProvider = ( { children } ) => {
-  const [state, dispatch] = useReducer((state, action) => {
-    
-    let kopio = state.pelaajat.slice()
+const StateProvider = ({ children }) => {
+	const [state, dispatch] = useReducer((state, action) => {
 
-    switch (action.type) {
+		let kopio = state.pelaajat.slice();
+		let tila = {};
 
-        case Pelitila.ALOITA_PAINETTU:
+		switch (action.type) {
 
-            if (state.pelaajat[0].length > 0 && state.pelaajat[1].length > 0) {
-                return { ...state, peliKäynnissä: true };
-            } else {
-                return { ...state, peliKäynnissä: false };
-            }
+			case Pelitila.ALOITA_PAINETTU:
 
-        case Pelitila.NIMI_O_MUUTTUI:
+				if (state.pelaajat[0].length > 0
+					&& state.pelaajat[1].length > 0) {
+					//return { ...state, peliKäynnissä: true };
+					tila = { ...state, peliKäynnissä: true };
+				} else {
+					//return { ...state, peliKäynnissä: false };
+					tila = { ...state, peliKäynnissä: false };
+				};
+				break;
 
-            kopio[0] = action.data
-            return { ...state, pelaajat: kopio };
+			case Pelitila.NIMI_O_MUUTTUI:
 
-        case Pelitila.NIMI_X_MUUTTUI:
+				kopio[0] = action.data;
+				//return { ...state, pelaajat: kopio };
+				tila = { ...state, pelaajat: kopio };
+				break;
 
-            kopio[1] = action.data
-            return { ...state, pelaajat: kopio };
+			case Pelitila.NIMI_X_MUUTTUI:
 
-        case Pelitila.RUUTU_VALITTU:
+				kopio[1] = action.data;
+				//return { ...state, pelaajat: kopio };
+				tila = { ...state, pelaajat: kopio };
+				break;
 
-            if (state.pelilauta[action.data].nappula == " " && state.voittaja == -1) {
-                let kopio = state.pelilauta.slice()
-                if (state.pelivuoroX) {
+			case Pelitila.RUUTU_VALITTU:
 
-                    kopio[action.data].nappula = nap.x
-                    if (voittaakoTämäPelaaja(kopio, nap.x)) {
-                        return { ...state, pelilauta: kopio, pelivuoroX: false, voittaja: 1 }
-                    } else {
-                        return { ...state, pelilauta: kopio, pelivuoroX: false }
-                    }
-                    //setPelilauta(kopio)
-                    //setPelivuoroX(false)
-                } else {
+				if (state.pelilauta[action.data].nappula === " "
+					&& state.voittaja === -1) {
+					let kopio = state.pelilauta.slice()
 
-                    kopio[action.data].nappula = nap.o
-                    if (voittaakoTämäPelaaja(kopio, nap.o)) {
-                        return { ...state, pelilauta: kopio, pelivuoroX: false, voittaja: 0 }
-                    } else {
+					if (state.pelivuoroX) {
+						kopio[action.data].nappula = nap.x;
 
-                        return { ...state, pelilauta: kopio, pelivuoroX: true }
-                    }
+						if (voittaakoTämäPelaaja(kopio, nap.x)) {
+							/*
+							return {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: false,
+								voittaja: 1
+							};
+							*/
+							tila = {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: false,
+								voittaja: 1
+							};
+						} else {
+							/*
+							return {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: false
+							};
+							*/
+							tila = {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: false
+							};
+						};
+						//setPelilauta(kopio)
+						//setPelivuoroX(false)
+					} else {
+						kopio[action.data].nappula = nap.o;
 
-                    //setPelilauta(kopio)
-                    //setPelivuoroX(true)
-                }
-            }
+						if (voittaakoTämäPelaaja(kopio, nap.o)) {
+							/*
+							return {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: false,
+								voittaja: 0
+							};
+							*/
+							tila = {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: false,
+								voittaja: 0
+							};
+						} else {
+							/*
+							return {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: true
+							};
+							*/
+							tila = {
+								...state,
+								pelilauta: kopio,
+								pelivuoroX: true
+							};
+						};
+						//setPelilauta(kopio)
+						//setPelivuoroX(true)
+					};
+				};
+				break;
 
-        default:
-            throw new Error();
-    }
-  }, initialState);
+			default:
+				throw new Error();
+		};
+		
+		return tila;
+	}, initialState);
 
-  return <Provider value={{ state, dispatch }}>{children}</Provider>;
+	return (
+		<Provider value={{ state, dispatch }}>
+			{children}
+		</Provider>
+	);
 };
 
-export { store, StateProvider }
+export { store, StateProvider };
