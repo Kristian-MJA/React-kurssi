@@ -9,6 +9,80 @@ const Pelitila = {
 	PELI_OHI: 'PELI_OHI'
 };
 
+// CUSTOM PELILAUTA -------------------------------------------
+const N = 5;
+const leveys = 32;
+const korkeus = 18;
+const nap = { x: "X", o: "O", tyhja: " " };
+
+const voittorivit = [];
+const initialState = {
+	pelilauta: [],
+	tila: Pelitila.NIMET_PUUTTEELLISET,
+	pelaajat: ["", ""],
+	pelivuoroX: true,
+	voittaja: -1,
+	peliKäynnissä: false
+};
+
+const xy_to_index = (x, y) => {
+	if (x >= 0 && x < leveys & y >= 0 && y < korkeus) {
+		return x + leveys * y;
+	} else {
+		return -1;
+	};
+};
+
+for (let i = 0; i < leveys * korkeus; i++) {
+	initialState.pelilauta.push({ nappula: nap.tyhja, paikka: i });
+};
+
+// Pystysuorat N linjat
+for (let x = 0; x < leveys; x++) {
+	for (let y = 0; y < korkeus - N + 1; y++) {
+		const linja = [...Array(N).keys()].map(i => [x, y + i]);
+
+		voittorivit.push(
+			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
+		);
+	};
+};
+// Vaakasuorat N linjat
+for (let x = 0; x < leveys - N + 1; x++) {
+	for (let y = 0; y < korkeus; y++) {
+		const linja = [...Array(N).keys()].map(i => [x + i, y]);
+
+		voittorivit.push(
+			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
+		);
+	};
+};
+// Diagonaaliset N linjat "\"
+for (let x = 0; x < leveys - N + 1; x++) {
+	for (let y = 0; y < korkeus - N + 1; y++) {
+		const linja =
+			[...Array(N).keys()].map(i => [x + i, y + i]);
+
+		voittorivit.push(
+			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
+		);
+	};
+};
+// Diagonaaliset N linjat "/"
+for (let x = leveys - 1; x > N - 2; x--) {
+	for (let y = 0; y < korkeus - N + 1; y++) {
+		const linja =
+			[...Array(N).keys()].map(i => [x - i, y + i]);
+
+		voittorivit.push(
+			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
+		);
+	};
+};
+console.log(voittorivit);
+// ------------------------------------------------------------
+
+/*
 const voittorivit = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -40,6 +114,7 @@ const initialState = {
 	voittaja: -1,
 	peliKäynnissä: false
 };
+*/
 
 const voittaakoTämäPelaaja = (lauta, pelaaja) => {
 	return voittorivit.some(x => {
@@ -47,7 +122,9 @@ const voittaakoTämäPelaaja = (lauta, pelaaja) => {
 		if (lauta[x[0]] !== nap.tyhja
 			&& lauta[x[0]].nappula === pelaaja
 			&& lauta[x[1]].nappula === pelaaja
-			&& lauta[x[2]].nappula === pelaaja) {
+			&& lauta[x[2]].nappula === pelaaja
+			&& lauta[x[3]].nappula === pelaaja
+			&& lauta[x[4]].nappula === pelaaja) {
 			voitto = true;
 		};
 		return voitto;
@@ -173,14 +250,12 @@ const StateProvider = ({ children }) => {
 			default:
 				throw new Error();
 		};
-		
+
 		return tila;
 	}, initialState);
 
 	return (
-		<Provider value={{ state, dispatch }}>
-			{children}
-		</Provider>
+		<Provider value={{ state, dispatch }}>{children}</Provider>
 	);
 };
 

@@ -22,17 +22,18 @@
 }
 
 .ristinollapeli {
-  max-width: 350px;
+  width: 1540px;
   background-image: url('./images/selma2.png');
   background-size: cover;
 }
 
 .peliruutu {
   margin: 4px;
-  width: 100px;
-  height: 100px;
+  width: 40px;
+  height: 40px;
   text-decoration: none;
   vertical-align: top;
+  font-size: xx-large;
 }
 
 .peliruutu5x5 {
@@ -84,7 +85,7 @@
 }
 
 .game {
-  width: 200px;
+  width: 350px;
 }
 
 
