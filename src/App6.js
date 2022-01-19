@@ -38,40 +38,57 @@ const App6 = () => {
 		dispatch({ type: Pelitila.RUUTU_VALITTU, data: indeksi });
 	};
 
+	const kenenVuoro = () => {
+		if (state.pelivuoroX) {
+			return "X";
+		} else {
+			return "O";
+		};
+	};
+
 	//  {voittikoX() && "X voitti"}
 	return (
 		<div className="App">
 			<header className="App-header">
 
-				{!state.peliKäynnissä
+				{
+					!state.peliKaynnissa
 					&& <button onClick={aloitaNappiPainettu}>
 						Aloita peli
-					</button>}
-				{(state.pelaajat[0].length < 1
-					|| state.pelaajat[1].length < 1)
-					&& <div>Kirjoita pidemmät nimet!</div>}
+					</button>
+				}
+				{
+					(state.pelaajat[0].length < 1
+						|| state.pelaajat[1].length < 1)
+					&& <div>Kirjoita pidemmät nimet!</div>
+				}
 				<div>
-					Pelaaja O
+					Pelaaja O: &nbsp;
 					<input
 						type="text"
 						value={state.pelaajat[0]}
 						onChange={(event) => nimiOMuuttui(event)}>
 					</input>
-				</div>
-				<div>
-					Pelaaja X
+					&nbsp;
+					Pelaaja X: &nbsp;
 					<input
 						type="text"
 						value={state.pelaajat[1]}
 						onChange={(event) => nimiXMuuttui(event)}>
 					</input>
 				</div>
+				{
+					state.peliKaynnissa
+					&& <div>VUORO: {kenenVuoro()}</div>
+				}
 
 				<div className="ristinollapeli">
-					{state.peliKäynnissä
+					{
+						state.peliKaynnissa
 						&& state.pelilauta.map((alkio, indeksi) =>
 							<RuutuCtx key={indeksi} ruuduntila={alkio} />
-						)}
+						)
+					}
 				</div>
 				{
 					state.voittaja !== -1
