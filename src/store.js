@@ -9,7 +9,7 @@ const Pelitila = {
 	PELI_OHI: 'PELI_OHI'
 };
 
-// CUSTOM PELILAUTA -------------------------------------------
+// CUSTOM PELILAUTA (N ristiä/nollaa peräkkäin voittoon) ------
 const N = 5;
 const leveys = 32;
 const korkeus = 18;
