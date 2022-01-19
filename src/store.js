@@ -33,13 +33,14 @@ indeksiksi. Esimerkiksi ruudukkoa
 (0, 1) (1, 1)	(2, 1)
 (0, 2) (1, 2)	(2, 2)
 
-vastaa juoksevat indeksit
+vastaa juokseva indeksointi
 
 0		1		2
 3		4		5
 6		7		8.
 
 Isommille ruudukoille vastaavasti.
+TODO: käänteisfunktio index_to_xy
 */
 const xy_to_index = (x, y) => {
 	if (x >= 0 && x < leveys & y >= 0 && y < korkeus) {
