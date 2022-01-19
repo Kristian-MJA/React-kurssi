@@ -1,6 +1,8 @@
 // store.js
 import React, { createContext, useReducer } from 'react';
 
+const io = require('socket.io-client');
+
 const Pelitila = {
 	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
 	NIMI_O_MUUTTUI: 'NIMI_O_MUUTTUI',
@@ -22,7 +24,7 @@ const initialState = {
 	pelaajat: ["", ""],
 	pelivuoroX: true,
 	voittaja: -1,
-	peliKäynnissä: false
+	peliKaynnissa: false
 };
 
 /*
@@ -129,13 +131,26 @@ const initialState = {
 	pelaajat: ["", ""],
 	pelivuoroX: true,
 	voittaja: -1,
-	peliKäynnissä: false
+	peliKaynnissa: false
 };
 */
 
-const voittaakoTämäPelaaja = (lauta, pelaaja) => {
+const voittaakoTamaPelaaja = (lauta, pelaaja, N = 3) => {
+
+	const voittoehto = (rivi) => {
+		return (
+			lauta[rivi[0]] !== nap.tyhja
+			&& [...Array(N).keys()].map(i => lauta[rivi[i]].nappula)
+				.every(e => e === pelaaja)
+		);
+	};
+
 	return voittorivit.some(x => {
 		let voitto = false;
+		if (voittoehto(x)) {
+			voitto = true;
+		};
+		/*
 		if (lauta[x[0]] !== nap.tyhja
 			&& lauta[x[0]].nappula === pelaaja
 			&& lauta[x[1]].nappula === pelaaja
@@ -144,6 +159,7 @@ const voittaakoTämäPelaaja = (lauta, pelaaja) => {
 			&& lauta[x[4]].nappula === pelaaja) {
 			voitto = true;
 		};
+		*/
 		return voitto;
 	});
 };
@@ -164,11 +180,11 @@ const StateProvider = ({ children }) => {
 
 				if (state.pelaajat[0].length > 0
 					&& state.pelaajat[1].length > 0) {
-					//return { ...state, peliKäynnissä: true };
-					tila = { ...state, peliKäynnissä: true };
+					//return { ...state, peliKaynnissa: true };
+					tila = { ...state, peliKaynnissa: true };
 				} else {
-					//return { ...state, peliKäynnissä: false };
-					tila = { ...state, peliKäynnissä: false };
+					//return { ...state, peliKaynnissa: false };
+					tila = { ...state, peliKaynnissa: false };
 				};
 				break;
 
@@ -195,7 +211,7 @@ const StateProvider = ({ children }) => {
 					if (state.pelivuoroX) {
 						kopio[action.data].nappula = nap.x;
 
-						if (voittaakoTämäPelaaja(kopio, nap.x)) {
+						if (voittaakoTamaPelaaja(kopio, nap.x)) {
 							/*
 							return {
 								...state,
@@ -229,7 +245,7 @@ const StateProvider = ({ children }) => {
 					} else {
 						kopio[action.data].nappula = nap.o;
 
-						if (voittaakoTämäPelaaja(kopio, nap.o)) {
+						if (voittaakoTamaPelaaja(kopio, nap.o)) {
 							/*
 							return {
 								...state,
