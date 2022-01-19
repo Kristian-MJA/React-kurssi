@@ -25,6 +25,22 @@ const initialState = {
 	peliKäynnissä: false
 };
 
+/*
+Muuntaa pelilaudalla olevan ruudun (x, y)-koordinaatin juoksevaksi
+indeksiksi. Esimerkiksi ruudukkoa
+
+(0, 0) (1, 0) (2, 0)
+(0, 1) (1, 1)	(2, 1)
+(0, 2) (1, 2)	(2, 2)
+
+vastaa juoksevat indeksit
+
+0		1		2
+3		4		5
+6		7		8.
+
+Isommille ruudukoille vastaavasti.
+*/
 const xy_to_index = (x, y) => {
 	if (x >= 0 && x < leveys & y >= 0 && y < korkeus) {
 		return x + leveys * y;
