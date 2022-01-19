@@ -18,9 +18,9 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const httpServer = http.createServer(app);
-const SocketIO = require('socket.io');
+const io = require('socket.io');
 const PORT = 5000;
-const sioServer = new SocketIO.Server(httpServer);
+const ioServer = new io.Server(httpServer);
 
 httpServer.listen(PORT, () => {
   console.log(`Listening on localhost: ${PORT}\r\n`);

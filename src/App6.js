@@ -4,6 +4,8 @@ import RuutuCtx from "./RuutuCtx.js";
 import { render } from 'react-dom';
 import { store } from './store.js';
 
+const io = require('socket.io-client');
+
 const Pelitila = {
 	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
 	NIMI_O_MUUTTUI: 'NIMI_O_MUUTTUI',
@@ -79,7 +81,12 @@ const App6 = () => {
 				</div>
 				{
 					state.peliKaynnissa
+					&& state.voittaja === -1
 					&& <div>VUORO: {kenenVuoro()}</div>
+				}
+				{
+					state.voittaja !== -1
+					&& "VOITTAJA: " + state.pelaajat[state.voittaja]
 				}
 
 				<div className="ristinollapeli">
@@ -90,10 +97,6 @@ const App6 = () => {
 						)
 					}
 				</div>
-				{
-					state.voittaja !== -1
-					&& "Voittaja on " + state.pelaajat[state.voittaja]
-				}
 
 			</header >
 		</div >
