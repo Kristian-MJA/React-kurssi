@@ -40,7 +40,7 @@ const corsOptions = {
   ]
 };
 
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -57,14 +57,19 @@ app.get('/:id', (req, res) => {
 
 ioServer.on('connection', (socket) => {
   const peliID = socket.id;
-  console.log('Uusi soketti:', peliID);
 
-  socket.on('siirto', () => {
+  console.log('Socket connected:', peliID);
+  socket.emit(
+    'gamedata',
+    { text: 'Your game ID is:', content: peliID }
+  );
 
+  socket.on('gamedata', (data) => {
+    // Placeholder
   });
 
   socket.on('disconnect', () => {
-
+    console.log('Socket disconnected:', peliID);
   });
 
 });

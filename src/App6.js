@@ -1,11 +1,14 @@
-import React, { useState, useReducer, useContext } from 'react';
+import React, { useState, useReducer, useContext, useEffect } from 'react';
 import './App.css';
 import RuutuCtx from "./RuutuCtx.js";
 import { render } from 'react-dom';
 import { store } from './store.js';
 
 const io = require('socket.io-client');
-const ioServer = 'http://localhost:4000';
+const ioHost = 'http://localhost:4000';
+const ioHostOptions = {
+	transports: ['websocket', 'polling', 'flashsocket']
+};
 
 const Pelitila = {
 	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
@@ -17,10 +20,12 @@ const Pelitila = {
 
 const App6 = () => {
 
-	const socket = io(ioServer);
+	const [PeliID, setPeliID] = useState('');
 
-	socket.on('connection', () => {
-		console.log('socket.on() pelittää');
+	const socket = io(ioHost, ioHostOptions);
+
+	socket.on('gamedata', (data) => {
+		console.log(data.text, data.content);
 	});
 
 	// const [state, dispatch] = useReducer(reducer, initialState);
