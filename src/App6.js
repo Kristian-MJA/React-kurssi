@@ -16,6 +16,8 @@ const Pelitila = {
 
 const App6 = () => {
 
+	const socket = io();
+
 	// const [state, dispatch] = useReducer(reducer, initialState);
 
 	const globalState = useContext(store);
@@ -65,18 +67,18 @@ const App6 = () => {
 					&& <div>Kirjoita pidemmät nimet!</div>
 				}
 				<div>
-					Pelaaja O: &nbsp;
-					<input
-						type="text"
-						value={state.pelaajat[0]}
-						onChange={(event) => nimiOMuuttui(event)}>
-					</input>
-					&nbsp;
 					Pelaaja X: &nbsp;
 					<input
 						type="text"
 						value={state.pelaajat[1]}
 						onChange={(event) => nimiXMuuttui(event)}>
+					</input>
+					&nbsp;
+					Pelaaja O: &nbsp;
+					<input
+						type="text"
+						value={state.pelaajat[0]}
+						onChange={(event) => nimiOMuuttui(event)}>
 					</input>
 				</div>
 				{

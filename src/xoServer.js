@@ -22,6 +22,10 @@ const io = require('socket.io');
 const PORT = 5000;
 const ioServer = new io.Server(httpServer);
 
+ioServer.on('connection', (socket) => {
+
+});
+
 httpServer.listen(PORT, () => {
   console.log(`Listening on localhost: ${PORT}\r\n`);
 });

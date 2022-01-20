@@ -9,7 +9,7 @@ const Pelitila = {
 	PELI_OHI: 'PELI_OHI'
 };
 
-// CUSTOM PELILAUTA (N ristiä/nollaa peräkkäin voittoon) ------
+// CUSTOM PELILAUTA (N ristiä/nollaa peräkkäin voittoon)
 const N = 5;
 const leveys = 32;
 const korkeus = 18;
@@ -50,50 +50,31 @@ const xy_to_index = (x, y) => {
 	};
 };
 
-for (let i = 0; i < leveys * korkeus; i++) {
-	initialState.pelilauta.push({ nappula: nap.tyhja, paikka: i });
+const lisaaVoittorivi = (rivi) => {
+	if (rivi.every(P => xy_to_index(P[0], P[1]) > -1)) {
+		voittorivit.push(rivi.map(P => xy_to_index(P[0], P[1])));
+	};
 };
 
-// Pystysuorat N linjat
+initialState.pelilauta = [...Array(leveys * korkeus).keys()]
+	.map(i => ({ nappula: nap.tyhja, paikka: i }));
+	
+// Voittorivien generointi
 for (let x = 0; x < leveys; x++) {
-	for (let y = 0; y < korkeus - N + 1; y++) {
-		const linja = [...Array(N).keys()].map(i => [x, y + i]);
-
-		voittorivit.push(
-			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
-		);
-	};
-};
-// Vaakasuorat N linjat
-for (let x = 0; x < leveys - N + 1; x++) {
 	for (let y = 0; y < korkeus; y++) {
-		const linja = [...Array(N).keys()].map(i => [x + i, y]);
+		// "|"
+		const pystyRivi = [...Array(N).keys()].map(i => [x, y + i]);
+		// "--"
+		const vaakaRivi = [...Array(N).keys()].map(i => [x + i, y]);
+		// "\"
+		const diagAlas = [...Array(N).keys()].map(i => [x + i, y + i]);
+		// "/"
+		const diagYlos = [...Array(N).keys()].map(i => [x - i, y + i]);
 
-		voittorivit.push(
-			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
-		);
-	};
-};
-// Diagonaaliset N linjat "\"
-for (let x = 0; x < leveys - N + 1; x++) {
-	for (let y = 0; y < korkeus - N + 1; y++) {
-		const linja =
-			[...Array(N).keys()].map(i => [x + i, y + i]);
-
-		voittorivit.push(
-			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
-		);
-	};
-};
-// Diagonaaliset N linjat "/"
-for (let x = leveys - 1; x > N - 2; x--) {
-	for (let y = 0; y < korkeus - N + 1; y++) {
-		const linja =
-			[...Array(N).keys()].map(i => [x - i, y + i]);
-
-		voittorivit.push(
-			linja.map(P => xy_to_index(P[0], P[1], leveys, korkeus))
-		);
+		lisaaVoittorivi(pystyRivi);
+		lisaaVoittorivi(vaakaRivi);
+		lisaaVoittorivi(diagAlas);
+		lisaaVoittorivi(diagYlos);
 	};
 };
 console.log(voittorivit);
@@ -134,14 +115,18 @@ const initialState = {
 */
 
 const voittaakoTamaPelaaja = (lauta, pelaaja) => {
+	
+	const voittoehto = (rivi) => {
+		return (
+			lauta[rivi[0]] !== nap.tyhja
+			&& ([...Array(N).keys()].map(i => lauta[rivi[i]]))
+				.every(e => e.nappula === pelaaja)
+		);
+	};
+	
 	return voittorivit.some(x => {
 		let voitto = false;
-		if (lauta[x[0]] !== nap.tyhja
-			&& lauta[x[0]].nappula === pelaaja
-			&& lauta[x[1]].nappula === pelaaja
-			&& lauta[x[2]].nappula === pelaaja
-			&& lauta[x[3]].nappula === pelaaja
-			&& lauta[x[4]].nappula === pelaaja) {
+		if (voittoehto(x)) {
 			voitto = true;
 		};
 		return voitto;
