@@ -14,7 +14,6 @@ Testi
 */
 
 const express = require('express');
-//import express from 'express';
 const app = express();
 const cors = require('cors');
 const http = require('http');
@@ -47,15 +46,31 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
   //res.sendFile(__dirname + '/../public/index.html');
-  res.redirect('http://localhost:3000');
+  res.send('xoServer.js kuittaa').status(200);
+});
+
+// Voidaan hakea tietty peli ID:n avulla
+app.get('/:id', (req, res) => {
+  const peliID = req.params.id;
+  // Placeholder
 });
 
 ioServer.on('connection', (socket) => {
+  const peliID = socket.id;
+  console.log('Uusi soketti:', peliID);
+
+  socket.on('siirto', () => {
+
+  });
+
+  socket.on('disconnect', () => {
+
+  });
 
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`Listening on localhost: ${PORT}\r\n`);
+  console.log(`Listening on http://localhost:${PORT}\r\n`);
 });
 
 console.log(__dirname);
