@@ -84,7 +84,7 @@ const App6 = () => {
 				{
 					state.peliKaynnissa
 					&& state.voittaja === -1
-					&& <div>VUORO: {kenenVuoro()}</div>
+					&& <div>VUOROSSA: {kenenVuoro()}</div>
 				}
 				{
 					state.voittaja !== -1

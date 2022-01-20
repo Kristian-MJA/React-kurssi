@@ -58,7 +58,7 @@ const lisaaVoittorivi = (rivi) => {
 
 initialState.pelilauta = [...Array(leveys * korkeus).keys()]
 	.map(i => ({ nappula: nap.tyhja, paikka: i }));
-	
+
 // Voittorivien generointi
 for (let x = 0; x < leveys; x++) {
 	for (let y = 0; y < korkeus; y++) {
@@ -115,7 +115,7 @@ const initialState = {
 */
 
 const voittaakoTamaPelaaja = (lauta, pelaaja) => {
-	
+
 	const voittoehto = (rivi) => {
 		return (
 			lauta[rivi[0]] !== nap.tyhja
@@ -123,7 +123,7 @@ const voittaakoTamaPelaaja = (lauta, pelaaja) => {
 				.every(e => e.nappula === pelaaja)
 		);
 	};
-	
+
 	return voittorivit.some(x => {
 		let voitto = false;
 		if (voittoehto(x)) {
@@ -246,7 +246,13 @@ const StateProvider = ({ children }) => {
 						//setPelilauta(kopio)
 						//setPelivuoroX(true)
 					};
+				} else {
+					tila = { ...state };
 				};
+				break;
+
+			case Pelitila.PELI_OHI:
+				// Placeholder
 				break;
 
 			default:
