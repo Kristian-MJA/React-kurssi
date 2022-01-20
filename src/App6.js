@@ -5,6 +5,7 @@ import { render } from 'react-dom';
 import { store } from './store.js';
 
 const io = require('socket.io-client');
+const HOST = 'http://localhost:4000';
 
 const Pelitila = {
 	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
@@ -16,7 +17,11 @@ const Pelitila = {
 
 const App6 = () => {
 
-	const socket = io();
+	const socket = io(HOST);
+
+	socket.on('connection', () => {
+		console.log('socket.on() pelittää');
+	});
 
 	// const [state, dispatch] = useReducer(reducer, initialState);
 
