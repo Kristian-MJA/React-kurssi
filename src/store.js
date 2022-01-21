@@ -148,7 +148,6 @@ const StateProvider = ({ children }) => {
 		switch (action.type) {
 
 			case Pelitila.ALOITA_PAINETTU:
-
 				if (state.pelaajat[0].length > 0
 					&& state.pelaajat[1].length > 0) {
 					//return { ...state, peliKaynnissa: true };
@@ -162,13 +161,11 @@ const StateProvider = ({ children }) => {
 				break;
 
 			case Pelitila.NIMI_O_MUUTTUI:
-
 				kopio.pelaajat[0] = action.data;
 				//return { ...state, pelaajat: kopio };
 				break;
 
 			case Pelitila.NIMI_X_MUUTTUI:
-
 				kopio.pelaajat[1] = action.data;
 				//return { ...state, pelaajat: kopio };
 				break;
@@ -236,7 +233,13 @@ const StateProvider = ({ children }) => {
 				break;
 
 			case Pelitila.PELI_OHI:
-				// Placeholder
+				if (action.data) {
+					// O voittaa
+					kopio.voittaja = 0;
+				} else {
+					// X voittaa
+					kopio.voittaja = 1;
+				};
 				break;
 
 			case Pelitila.UUSIPELI_PAINETTU:

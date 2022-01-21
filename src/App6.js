@@ -51,6 +51,9 @@ const App6 = () => {
 	const ruutuValittu = (indeksi) => {
 		dispatch({ type: Pelitila.RUUTU_VALITTU, data: indeksi });
 	};
+	const luovutaNappiPainettu = () => {
+		dispatch({ type: Pelitila.PELI_OHI, data: state.pelivuoroX });
+	};
 
 	const kenenVuoro = () => {
 		if (state.pelivuoroX) {
@@ -133,44 +136,31 @@ const App6 = () => {
 					<div>
 						{
 							!state.peliKaynnissa
-							&& <button className='button-xo'
+							&& <button
+								className='button-xo'
 								onClick={aloitaNappiPainettu}>
 								Aloita peli
 							</button>
 						}
 						{
 							state.voittaja !== -1
-							&&
-							<button
+							&& <button
 								className='button-xo'
 								onClick={uusiPeliNappiPainettu}>
 								Uusi peli
 							</button>
 						}
-						<button
-							className='button-xo-red'
-							onClick={null}>
-							Lopeta
-						</button>
+						{
+							state.peliKaynnissa
+							&& state.voittaja === -1
+							&& <button
+								className='button-xo-red'
+								onClick={luovutaNappiPainettu}>
+								Luovuta
+							</button>
+						}
 					</div>
 				}
-
-				{/*
-				{
-					state.voittaja !== -1
-					&&
-					<button
-						className='button-xo'
-						onClick={uusiPeliNappiPainettu}>
-						Uusi peli
-					</button>
-				}
-				<button
-					className='button-xo-red'
-					onClick={null}>
-					Lopeta
-				</button>
-				*/}
 			</header >
 		</div >
 	);
