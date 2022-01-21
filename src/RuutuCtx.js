@@ -1,4 +1,5 @@
-import React, { useState, useReducer, useContext } from 'react';
+//import React, { useState, useReducer, useContext } from 'react';
+import React, { useContext } from 'react';
 import { store } from './store.js';
 
 const Pelitila = {
@@ -12,10 +13,16 @@ const Pelitila = {
 
 export function Ruutu(props) {
 	const globalState = useContext(store);
-	const { dispatch, state } = globalState;
+	//const { dispatch, state } = globalState;
+	const { dispatch } = globalState;
+	let buttonClass = "peliruutu-1";
+
+	if (props.ruuduntila.nappula === "O") {
+		buttonClass = "peliruutu-2";
+	};
 
 	return (
-		<button className="peliruutu" onClick={() => dispatch(
+		<button className={buttonClass} onClick={() => dispatch(
 			{ type: Pelitila.RUUTU_VALITTU, data: props.ruuduntila.paikka }
 		)}>
 			{props.ruuduntila.nappula}

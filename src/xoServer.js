@@ -22,6 +22,7 @@ const httpServer = http.createServer(app);
 const io = require('socket.io');
 const PORT = 4000;
 const ioServer = new io.Server(httpServer);
+
 /*
 const corsOptions = {
   origin: 'http://localhost:3000',
@@ -40,7 +41,17 @@ const corsOptions = {
   ]
 };
 */
-let gameState = {};
+
+const gameSockets = [];
+const nap = { x: "X", o: "O", tyhja: " " };
+
+const printGameData = (data) => {
+  // Tulostetaan pelin tila ilman tyhjiä ruutuja
+  const pelilautaEiTyhjia =
+    data.pelilauta.filter(N => N.nappula !== ' ');
+
+  return { ...data, pelilauta: pelilautaEiTyhjia };
+};
 
 //app.use(cors(corsOptions));
 app.use(express.json());
@@ -63,12 +74,24 @@ ioServer.on('connection', (socket) => {
   console.log('Socket connected:', peliID);
   socket.emit('gameId', peliID);
 
+  gameSockets.push({ id: peliID, state: {} });
+  console.log('Aktiiviset pelit:', gameSockets.map(G => G.id));
+
   socket.on('gamedata', (data) => {
-    // Placeholder
+    const index = gameSockets.findIndex(G => G.id === socket.id);
+
+    gameSockets[index].state = data;
+
+    console.log(`Vastaanottettu ID=${socket.id}:`);
+    console.log(printGameData(data));
   });
 
   socket.on('disconnect', () => {
+    const index = gameSockets.findIndex(G => G.id === socket.id);
+    gameSockets.splice(index, 1);
+
     console.log('Socket disconnected:', peliID);
+    console.log('Aktiiviset pelit:', gameSockets.map(G => G.id));
   });
 
 });

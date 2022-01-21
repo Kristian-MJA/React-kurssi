@@ -12,8 +12,8 @@ const Pelitila = {
 
 // CUSTOM PELILAUTA (N ristiä/nollaa peräkkäin voittoon)
 const N = 5;
-const leveys = 32;
-const korkeus = 18;
+const leveys = 30;
+const korkeus = 20;
 const nap = { x: "X", o: "O", tyhja: " " };
 
 const voittorivit = [];
@@ -22,7 +22,7 @@ const initialState = {
 		.map(i => ({ nappula: nap.tyhja, paikka: i })),
 	tila: Pelitila.NIMET_PUUTTEELLISET,
 	pelaajat: ["", ""],
-	pelivuoroX: true,
+	pelivuoroX: Math.random() < 0.5,
 	voittaja: -1,
 	peliKaynnissa: false
 };
@@ -245,7 +245,7 @@ const StateProvider = ({ children }) => {
 						kopio.pelilauta[i].nappula = nap.tyhja;
 					};
 				};
-				kopio.pelivuoroX = true;
+				kopio.pelivuoroX = Math.random() < 0.5;
 				kopio.voittaja = -1;
 				break;
 

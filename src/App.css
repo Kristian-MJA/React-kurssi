@@ -12,7 +12,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: top;
   font-size: calc(10px + 2vmin);
   color: white;
 }
@@ -29,24 +29,103 @@
   color: white;
   border: none;
   border-radius: 20px;
+  margin: 10px;
+  cursor: pointer;
 }
 .button-xo:active {
   filter: brightness(80%);
 }
 
+.button-xo-red {
+  width: 250px;
+  height: 40px;
+  background-color:brown;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  margin: 10px;
+  cursor: pointer;
+}
+.button-xo-red:active {
+  filter: brightness(80%);
+}
+
 .ristinollapeli {
-  width: 1540px;
+  width: calc(30 * 40px);
+  /*height: calc(20 * 40px);*/
+  padding: 0px;
   /*background-image: url('./images/selma2.png');*/
   background-size: cover;
+  /*background-color: cornflowerblue;*/
 }
 
 .peliruutu {
-  margin: 4px;
   width: 40px;
   height: 40px;
   text-decoration: none;
   vertical-align: top;
   font-size: xx-large;
+  border: solid;
+  border-color: cornflowerblue;
+  border-width: 1px;
+  cursor: pointer;
+  font-family: cursive;
+  text-align: center;
+  line-height: 100%;
+  background-color: whitesmoke;
+}
+.peliruutu:hover {
+  background-color: gainsboro;
+}
+
+.peliruutu-1 {
+  width: 40px;
+  height: 40px;
+  text-decoration: none;
+  vertical-align: top;
+  font-size: xx-large;
+  border: solid;
+  border-color: cornflowerblue;
+  border-width: 1px;
+  cursor: pointer;
+  font-family: cursive;
+  text-align: center;
+  color: green;
+  line-height: 100%;
+  background-color: whitesmoke;
+}
+/*.peliruutu-1:hover {
+  background-color: gainsboro;
+}*/
+
+.peliruutu-2 {
+  width: 40px;
+  height: 40px;
+  text-decoration: none;
+  vertical-align: top;
+  font-size: xx-large;
+  border: solid;
+  border-color: cornflowerblue;
+  border-width: 1px;
+  cursor: pointer;
+  font-family: cursive;
+  text-align: center;
+  color: brown;
+  line-height: 100%;
+  background-color: whitesmoke;
+}
+/*.peliruutu-2:hover {
+  background-color: gainsboro;
+}*/
+
+.input-xo {
+  vertical-align: bottom;
+  font-size: 24px;
+  border-style: none;
+  padding: 4px;
+  border-radius: 10px;
+  margin-top: 10px;
 }
 
 .peliruutu5x5 {
