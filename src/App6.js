@@ -103,8 +103,12 @@ const App6 = () => {
 					</input>
 				</div>
 				{
-					!state.aloitaNappiPainettu
+					!state.peliKaynnissa
 					&& <div>Pelin ID: {PeliID}</div>
+				}
+				{
+					state.peliKaynnissa
+					&& <div>VUORO: {kenenVuoro()}</div>
 				}
 
 				<div className="ristinollapeli">

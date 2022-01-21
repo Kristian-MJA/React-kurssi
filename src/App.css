@@ -36,7 +36,7 @@
 
 .ristinollapeli {
   width: 1540px;
-  background-image: url('./images/selma2.png');
+  /*background-image: url('./images/selma2.png');*/
   background-size: cover;
 }
 
