@@ -6,7 +6,8 @@ const Pelitila = {
 	NIMI_O_MUUTTUI: 'NIMI_O_MUUTTUI',
 	ALOITA_PAINETTU: 'ALOITA_PAINETTU',
 	RUUTU_VALITTU: 'RUUTU_VALITTU',
-	PELI_OHI: 'PELI_OHI'
+	PELI_OHI: 'PELI_OHI',
+	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU'
 };
 
 // CUSTOM PELILAUTA (N ristiä/nollaa peräkkäin voittoon)
@@ -17,7 +18,8 @@ const nap = { x: "X", o: "O", tyhja: " " };
 
 const voittorivit = [];
 const initialState = {
-	pelilauta: [],
+	pelilauta: [...Array(leveys * korkeus).keys()]
+		.map(i => ({ nappula: nap.tyhja, paikka: i })),
 	tila: Pelitila.NIMET_PUUTTEELLISET,
 	pelaajat: ["", ""],
 	pelivuoroX: true,
@@ -56,8 +58,8 @@ const lisaaVoittorivi = (rivi) => {
 	};
 };
 
-initialState.pelilauta = [...Array(leveys * korkeus).keys()]
-	.map(i => ({ nappula: nap.tyhja, paikka: i }));
+// initialState.pelilauta = [...Array(leveys * korkeus).keys()]
+//.map(i => ({ nappula: nap.tyhja, paikka: i }));
 
 // Voittorivien generointi
 for (let x = 0; x < leveys; x++) {
@@ -77,7 +79,7 @@ for (let x = 0; x < leveys; x++) {
 		lisaaVoittorivi(diagYlos);
 	};
 };
-console.log(voittorivit);
+//console.log(voittorivit);
 // ------------------------------------------------------------
 
 /*
@@ -140,8 +142,8 @@ const { Provider } = store;
 const StateProvider = ({ children }) => {
 	const [state, dispatch] = useReducer((state, action) => {
 
-		let kopio = state.pelaajat.slice();
-		let tila = {};
+		//let kopio = state.pelaajat.slice();
+		let kopio = { ...state };
 
 		switch (action.type) {
 
@@ -150,37 +152,37 @@ const StateProvider = ({ children }) => {
 				if (state.pelaajat[0].length > 0
 					&& state.pelaajat[1].length > 0) {
 					//return { ...state, peliKaynnissa: true };
-					tila = { ...state, peliKaynnissa: true };
+					//tila = { ...state, peliKaynnissa: true };
+					kopio.peliKaynnissa = true;
 				} else {
 					//return { ...state, peliKaynnissa: false };
-					tila = { ...state, peliKaynnissa: false };
+					//tila = { ...state, peliKaynnissa: false };
+					kopio.peliKaynnissa = false;
 				};
 				break;
 
 			case Pelitila.NIMI_O_MUUTTUI:
 
-				kopio[0] = action.data;
+				kopio.pelaajat[0] = action.data;
 				//return { ...state, pelaajat: kopio };
-				tila = { ...state, pelaajat: kopio };
 				break;
 
 			case Pelitila.NIMI_X_MUUTTUI:
 
-				kopio[1] = action.data;
+				kopio.pelaajat[1] = action.data;
 				//return { ...state, pelaajat: kopio };
-				tila = { ...state, pelaajat: kopio };
 				break;
 
 			case Pelitila.RUUTU_VALITTU:
 
 				if (state.pelilauta[action.data].nappula === " "
 					&& state.voittaja === -1) {
-					let kopio = state.pelilauta.slice()
+					//let kopio = state.pelilauta.slice()
 
 					if (state.pelivuoroX) {
-						kopio[action.data].nappula = nap.x;
+						kopio.pelilauta[action.data].nappula = nap.x;
 
-						if (voittaakoTamaPelaaja(kopio, nap.x)) {
+						if (voittaakoTamaPelaaja(kopio.pelilauta, nap.x)) {
 							/*
 							return {
 								...state,
@@ -189,12 +191,8 @@ const StateProvider = ({ children }) => {
 								voittaja: 1
 							};
 							*/
-							tila = {
-								...state,
-								pelilauta: kopio,
-								pelivuoroX: false,
-								voittaja: 1
-							};
+							kopio.pelivuoroX = false;
+							kopio.voittaja = 1;
 						} else {
 							/*
 							return {
@@ -203,18 +201,14 @@ const StateProvider = ({ children }) => {
 								pelivuoroX: false
 							};
 							*/
-							tila = {
-								...state,
-								pelilauta: kopio,
-								pelivuoroX: false
-							};
+							kopio.pelivuoroX = false;
 						};
 						//setPelilauta(kopio)
 						//setPelivuoroX(false)
 					} else {
-						kopio[action.data].nappula = nap.o;
+						kopio.pelilauta[action.data].nappula = nap.o;
 
-						if (voittaakoTamaPelaaja(kopio, nap.o)) {
+						if (voittaakoTamaPelaaja(kopio.pelilauta, nap.o)) {
 							/*
 							return {
 								...state,
@@ -223,12 +217,8 @@ const StateProvider = ({ children }) => {
 								voittaja: 0
 							};
 							*/
-							tila = {
-								...state,
-								pelilauta: kopio,
-								pelivuoroX: false,
-								voittaja: 0
-							};
+							kopio.pelivuoroX = false;
+							kopio.voittaja = 0;
 						} else {
 							/*
 							return {
@@ -237,17 +227,11 @@ const StateProvider = ({ children }) => {
 								pelivuoroX: true
 							};
 							*/
-							tila = {
-								...state,
-								pelilauta: kopio,
-								pelivuoroX: true
-							};
+							kopio.pelivuoroX = true;
 						};
 						//setPelilauta(kopio)
 						//setPelivuoroX(true)
 					};
-				} else {
-					tila = { ...state };
 				};
 				break;
 
@@ -255,11 +239,21 @@ const StateProvider = ({ children }) => {
 				// Placeholder
 				break;
 
+			case Pelitila.UUSIPELI_PAINETTU:
+				for (let i in kopio.pelilauta) {
+					if (kopio.pelilauta[i].nappula !== nap.tyhja) {
+						kopio.pelilauta[i].nappula = nap.tyhja;
+					};
+				};
+				kopio.pelivuoroX = true;
+				kopio.voittaja = -1;
+				break;
+
 			default:
 				throw new Error();
 		};
 
-		return tila;
+		return kopio;
 	}, initialState);
 
 	return (

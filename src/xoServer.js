@@ -15,14 +15,14 @@ Testi
 
 const express = require('express');
 const app = express();
-const cors = require('cors');
+//const cors = require('cors');
 const http = require('http');
 const bodyParser = require('body-parser');
 const httpServer = http.createServer(app);
 const io = require('socket.io');
 const PORT = 4000;
 const ioServer = new io.Server(httpServer);
-
+/*
 const corsOptions = {
   origin: 'http://localhost:3000',
   credentials: true,
@@ -39,6 +39,8 @@ const corsOptions = {
     'authorization'
   ]
 };
+*/
+let gameState = {};
 
 //app.use(cors(corsOptions));
 app.use(express.json());
@@ -59,10 +61,7 @@ ioServer.on('connection', (socket) => {
   const peliID = socket.id;
 
   console.log('Socket connected:', peliID);
-  socket.emit(
-    'gamedata',
-    { text: 'Your game ID is:', content: peliID }
-  );
+  socket.emit('gameId', peliID);
 
   socket.on('gamedata', (data) => {
     // Placeholder

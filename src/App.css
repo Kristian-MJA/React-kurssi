@@ -21,6 +21,19 @@
   color: #09d3ac;
 }
 
+.button-xo {
+  width: 250px;
+  height: 40px;
+  background-color: darkcyan;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  border: none;
+  border-radius: 20px;
+}
+.button-xo:active {
+  filter: brightness(80%);
+}
+
 .ristinollapeli {
   width: 1540px;
   background-image: url('./images/selma2.png');

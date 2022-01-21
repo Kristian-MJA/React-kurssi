@@ -1,7 +1,7 @@
-import React, { useState, useReducer, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import './App.css';
 import RuutuCtx from "./RuutuCtx.js";
-import { render } from 'react-dom';
+//import { render } from 'react-dom';
 import { store } from './store.js';
 
 const io = require('socket.io-client');
@@ -10,28 +10,35 @@ const ioHostOptions = {
 	transports: ['websocket', 'polling', 'flashsocket']
 };
 
+// TÄRKEÄÄ OLLA APPIFUNKTION ULKOPUOLELLA!
+const socket = io(ioHost, ioHostOptions);
+
 const Pelitila = {
 	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
 	NIMI_O_MUUTTUI: 'NIMI_O_MUUTTUI',
 	ALOITA_PAINETTU: 'ALOITA_PAINETTU',
 	RUUTU_VALITTU: 'RUUTU_VALITTU',
-	PELI_OHI: 'PELI_OHI'
+	PELI_OHI: 'PELI_OHI',
+	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU'
 };
 
 const App6 = () => {
 
 	const [PeliID, setPeliID] = useState('');
 
-	const socket = io(ioHost, ioHostOptions);
-
-	socket.on('gamedata', (data) => {
-		console.log(data.text, data.content);
-	});
-
 	// const [state, dispatch] = useReducer(reducer, initialState);
 
 	const globalState = useContext(store);
 	const { dispatch, state } = globalState;
+
+	socket.on('gameId', (id) => {
+		console.log('Peliä vastaava socket-ID:', id);
+		setPeliID(id);
+	});
+
+	socket.on('gamedata', (data) => {
+
+	});
 
 	const nimiOMuuttui = (tapahtuma) => {
 		dispatch({
@@ -47,6 +54,9 @@ const App6 = () => {
 	};
 	const aloitaNappiPainettu = () => {
 		dispatch({ type: Pelitila.ALOITA_PAINETTU })
+	};
+	const uusiPeliNappiPainettu = () => {
+		dispatch({ type: Pelitila.UUSIPELI_PAINETTU })
 	};
 	const ruutuValittu = (indeksi) => {
 		dispatch({ type: Pelitila.RUUTU_VALITTU, data: indeksi });
@@ -67,7 +77,8 @@ const App6 = () => {
 
 				{
 					!state.peliKaynnissa
-					&& <button onClick={aloitaNappiPainettu}>
+					&& <button className='button-xo'
+						onClick={aloitaNappiPainettu}>
 						Aloita peli
 					</button>
 				}
@@ -92,13 +103,8 @@ const App6 = () => {
 					</input>
 				</div>
 				{
-					state.peliKaynnissa
-					&& state.voittaja === -1
-					&& <div>VUOROSSA: {kenenVuoro()}</div>
-				}
-				{
-					state.voittaja !== -1
-					&& "VOITTAJA: " + state.pelaajat[state.voittaja]
+					!state.aloitaNappiPainettu
+					&& <div>Pelin ID: {PeliID}</div>
 				}
 
 				<div className="ristinollapeli">
@@ -109,6 +115,18 @@ const App6 = () => {
 						)
 					}
 				</div>
+
+				{
+					state.voittaja !== -1
+					&& <div>
+						VOITTAJA: {state.pelaajat[state.voittaja]} &nbsp;
+						<button
+							className='button-xo'
+							onClick={uusiPeliNappiPainettu}>
+							Uusi peli
+						</button>
+					</div>
+				}
 
 			</header >
 		</div >
