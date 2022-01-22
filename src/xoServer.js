@@ -42,13 +42,13 @@ const corsOptions = {
 };
 */
 
-const gameSockets = [];
+const gameRooms = [];
 const nap = { x: "X", o: "O", tyhja: " " };
 
 const printGameData = (data) => {
   // Tulostetaan pelin tila ilman tyhjiä ruutuja
   const pelilautaEiTyhjia =
-    data.pelilauta.filter(N => N.nappula !== ' ');
+    data.pelilauta.filter(N => N.nappula !== nap.tyhja);
 
   return { ...data, pelilauta: pelilautaEiTyhjia };
 };
@@ -64,34 +64,49 @@ app.get('/', (req, res) => {
 
 // Voidaan hakea tietty peli ID:n avulla
 app.get('/:id', (req, res) => {
-  const peliID = req.params.id;
+  const omaID = req.params.id;
   // Placeholder
 });
 
 ioServer.on('connection', (socket) => {
-  const peliID = socket.id;
+  const omaID = socket.id;
 
-  console.log('Socket connected:', peliID);
-  socket.emit('gameId', peliID);
+  console.log('Socket connected:', omaID);
+  socket.emit('gameId', omaID);
 
-  gameSockets.push({ id: peliID, state: {} });
-  console.log('Aktiiviset pelit:', gameSockets.map(G => G.id));
+  gameRooms.push({ id: omaID, state: {} });
+  console.log('Pelihuoneet:', gameRooms.map(G => G.id));
 
-  socket.on('gamedata', (data) => {
-    const index = gameSockets.findIndex(G => G.id === socket.id);
+  socket.on('joinRoom', (data) => {
+    const index = gameRooms.findIndex(G => G.id === data.roomId);
 
-    gameSockets[index].state = data;
+    if (index > -1) {
+      socket.join(data.roomId);
+
+      socket.emit(
+        'serverMessage',
+        `Olet liittynyt huoneeseen ${data.roomId}.`);
+      socket.to(data.roomId).emit('joinedMyRoom', data);
+    } else {
+      socket.emit('serverMessage', 'Huonetta ei löydy!');
+    };
+  });
+
+  socket.on('gameData', (data) => {
+    const index = gameRooms.findIndex(G => G.id === socket.id);
+
+    gameRooms[index].state = data;
 
     console.log(`Vastaanottettu ID=${socket.id}:`);
     console.log(printGameData(data));
   });
 
   socket.on('disconnect', () => {
-    const index = gameSockets.findIndex(G => G.id === socket.id);
-    gameSockets.splice(index, 1);
+    const index = gameRooms.findIndex(G => G.id === socket.id);
+    gameRooms.splice(index, 1);
 
-    console.log('Socket disconnected:', peliID);
-    console.log('Aktiiviset pelit:', gameSockets.map(G => G.id));
+    console.log('Socket disconnected:', omaID);
+    console.log('Pelihuoneet:', gameRooms.map(G => G.id));
   });
 
 });

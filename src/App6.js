@@ -25,7 +25,10 @@ const Pelitila = {
 
 const App6 = () => {
 
-	const [PeliID, setPeliID] = useState('');
+	const [OmaID, setOmaID] = useState('');
+	const [Nimimerkki, setNimimerkki] = useState('');
+	const [Vastustaja, setVastustaja] = useState('');
+	const [HuoneID, setHuoneID] = useState('');
 	// const [state, dispatch] = useReducer(reducer, initialState);
 	const globalState = useContext(store);
 	const { dispatch, state } = globalState;
@@ -54,7 +57,6 @@ const App6 = () => {
 	const luovutaNappiPainettu = () => {
 		dispatch({ type: Pelitila.PELI_OHI, data: state.pelivuoroX });
 	};
-
 	const kenenVuoro = () => {
 		if (state.pelivuoroX) {
 			return 'X';
@@ -62,17 +64,39 @@ const App6 = () => {
 			return 'O';
 		};
 	};
+	const liityHuoneeseen = () => {
+		socket.emit('joinRoom', { nick: Nimimerkki, roomId: HuoneID });
+	};
 
 	// ----------------------------------------------------------
 
 	socket.on('gameId', (id) => {
-		console.log('Peliä vastaava socket-ID:', id);
-		setPeliID(id);
+		console.log('Sinun socket-ID:', id);
+		setOmaID(id);
 	});
 
-	socket.on('gamedata', (data) => {
+	socket.on('joinedMyRoom', (data) => {
+		setVastustaja(data.nick);
+		console.log(
+			`${data.nick} (ID=${data.roomId}) liittyi peliin.`
+		);
+	});
+
+	socket.on('serverMessage', (msg) => {
+		console.log(msg);
+	});
+
+	socket.on('gameData', (data) => {
 
 	});
+
+	useEffect(() => {
+		console.log('Nimimerkki:', Nimimerkki);
+	}, [Nimimerkki]);
+
+	useEffect(() => {
+		console.log('Syötetty huone:', HuoneID)
+	}, [HuoneID]);
 
 	useEffect(() => {
 		if (state.peliKaynnissa) {
@@ -87,7 +111,105 @@ const App6 = () => {
 		<div className='App'>
 			<header className='App-header'>
 
+				{/*
+					(state.pelaajat[0].length < 1
+						|| state.pelaajat[1].length < 1)
+					&& <div>Kirjoita pidemmät nimet!</div>
+				*/}
+				<div className='div-aula'>
+					Nimimerkkisi: &nbsp;
+					<input
+						className='input-xo'
+						type='text'
+						value={Nimimerkki}
+						onChange={(event) =>
+							setNimimerkki(event.target.value)
+						}>
+					</input>
+					{
+						!state.peliKaynnissa
+						&&
+						<div>
+							<div>Sinun ID: {OmaID}</div>
+							<div>
+								Vastustaja: {Vastustaja}
+							</div>
+							{
+								Vastustaja.length > 0
+								&& <div className='div-nappula'>
+									<button
+										className='button-xo'
+										onClick={() => aloitaNappiPainettu()}>
+										Aloita peli
+									</button>
+								</div>
+							}
+							{
+								Vastustaja.length === 0
+								&& <div>
+									Huoneen ID: &nbsp;
+									<input
+										className='input-xo'
+										type='text'
+										value={HuoneID}
+										onChange={(event) =>
+											setHuoneID(event.target.value)
+										}>
+									</input>
+									<div className='div-nappula'>
+										<button
+											className='button-xo'
+											onClick={() => liityHuoneeseen()}>
+											Liity peliin
+										</button>
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
 				{
+					state.peliKaynnissa
+					&& state.voittaja === -1
+					&& <div>VUORO: {kenenVuoro()}</div>
+				}
+				{
+					state.voittaja !== -1
+					&& <div>VOITTAJA: {state.pelaajat[state.voittaja]}</div>
+				}
+
+				<div className='ristinollapeli'>
+					{
+						state.peliKaynnissa
+						&& state.pelilauta.map((alkio, indeksi) =>
+							<RuutuCtx key={indeksi} ruuduntila={alkio} />
+						)
+					}
+				</div>
+
+				{
+					<div>
+						{
+							state.voittaja !== -1
+							&& <button
+								className='button-xo'
+								onClick={uusiPeliNappiPainettu}>
+								Uusi peli
+							</button>
+						}
+						{
+							state.peliKaynnissa
+							&& state.voittaja === -1
+							&& <button
+								className='button-xo-red'
+								onClick={luovutaNappiPainettu}>
+								Luovuta
+							</button>
+						}
+					</div>
+				}
+
+				{/*
 					(state.pelaajat[0].length < 1
 						|| state.pelaajat[1].length < 1)
 					&& <div>Kirjoita pidemmät nimet!</div>
@@ -130,7 +252,7 @@ const App6 = () => {
 
 				{
 					!state.peliKaynnissa
-					&& <div>Pelin ID: {PeliID}</div>
+					&& <div>Pelin ID: {OmaID}</div>
 				}
 				{
 					<div>
@@ -160,7 +282,8 @@ const App6 = () => {
 							</button>
 						}
 					</div>
-				}
+			*/}
+
 			</header >
 		</div >
 	);

@@ -51,6 +51,24 @@
   filter: brightness(80%);
 }
 
+.div-aula {
+  text-align: left;
+}
+
+.div-nappula {
+  text-align: center;
+}
+
+.input-xo {
+  vertical-align: auto;
+  font-size: 24px;
+  border-style: none;
+  padding: 4px;
+  border-radius: 10px;
+  margin-top: 10px;
+  width: 300px;
+}
+
 .ristinollapeli {
   width: calc(30 * 40px);
   /*height: calc(20 * 40px);*/
@@ -118,15 +136,6 @@
 /*.peliruutu-2:hover {
   background-color: gainsboro;
 }*/
-
-.input-xo {
-  vertical-align: bottom;
-  font-size: 24px;
-  border-style: none;
-  padding: 4px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
 
 .peliruutu5x5 {
   margin: 4px;
