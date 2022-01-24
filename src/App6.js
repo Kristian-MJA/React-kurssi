@@ -5,15 +5,6 @@ import RuutuCtx from './RuutuCtx.js';
 //import { render } from 'react-dom';
 import { store } from './store.js';
 
-const io = require('socket.io-client');
-const ioHost = 'http://localhost:4000';
-const ioHostOptions = {
-	transports: ['websocket', 'polling', 'flashsocket']
-};
-
-// TÄRKEÄÄ OLLA APPIFUNKTION ULKOPUOLELLA!
-// --- Laita useEffectiin?
-const socket = io(ioHost, ioHostOptions);
 
 const Pelitila = {
 	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
@@ -24,16 +15,28 @@ const Pelitila = {
 	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU'
 };
 
+const io = require('socket.io-client');
+const ioHost = 'http://localhost:4000';
+const ioHostOptions = {
+	transports: ['websocket', 'polling', 'flashsocket']
+};
+
+// TÄRKEÄÄ OLLA APPIFUNKTION ULKOPUOLELLA!
+// --- Laita useEffectiin?
+const socket = io(ioHost, ioHostOptions);
+
+
 const App6 = () => {
+
+	// const [state, dispatch] = useReducer(reducer, initialState);
+	const globalState = useContext(store);
+	const { dispatch, state } = globalState;
 
 	const [OmaID, setOmaID] = useState('');
 	const [Nimimerkki, setNimimerkki] = useState('');
 	const [Vastustaja, setVastustaja] = useState('');
 	const [HuoneID, setHuoneID] = useState('');
-	// const [state, dispatch] = useReducer(reducer, initialState);
-	const globalState = useContext(store);
-	const { dispatch, state } = globalState;
-
+	
 	const nimiOMuuttui = (tapahtuma) => {
 		dispatch({
 			type: Pelitila.NIMI_O_MUUTTUI,
@@ -71,13 +74,13 @@ const App6 = () => {
 
 	// ----------------------------------------------------------
 
-	// Laita useEffectiin?
+	// Laita App6:n ulkopuolelle?
 	socket.on('gameId', (id) => {
 		console.log('Sinun socket-ID:', id);
 		setOmaID(id);
 	});
 
-	// Laita useEffectiin?
+	// Laita App6:n ulkopuolelle?
 	socket.on('joinedMyRoom', (data) => {
 		setVastustaja(data.nick);
 		console.log(
@@ -85,10 +88,12 @@ const App6 = () => {
 		);
 	});
 
+	// Laita App6:n ulkopuolelle?
 	socket.on('serverMessage', (msg) => {
 		console.log(msg);
 	});
 
+	// Laita App6:n ulkopuolelle?
 	socket.on('gameData', (data) => {
 
 	});
@@ -107,7 +112,6 @@ const App6 = () => {
 		};
 	}, [state]);
 
-	// ----------------------------------------------------------
 
 	//  {voittikoX() && 'X voitti'}
 	return (
@@ -291,5 +295,6 @@ const App6 = () => {
 		</div >
 	);
 };
+
 
 export default App6;
