@@ -12,6 +12,7 @@ const ioHostOptions = {
 };
 
 // TÄRKEÄÄ OLLA APPIFUNKTION ULKOPUOLELLA!
+// --- Laita useEffectiin?
 const socket = io(ioHost, ioHostOptions);
 
 const Pelitila = {
@@ -70,11 +71,13 @@ const App6 = () => {
 
 	// ----------------------------------------------------------
 
+	// Laita useEffectiin?
 	socket.on('gameId', (id) => {
 		console.log('Sinun socket-ID:', id);
 		setOmaID(id);
 	});
 
+	// Laita useEffectiin?
 	socket.on('joinedMyRoom', (data) => {
 		setVastustaja(data.nick);
 		console.log(
