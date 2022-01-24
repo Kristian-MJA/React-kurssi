@@ -17,11 +17,11 @@ const express = require('express');
 const app = express();
 //const cors = require('cors');
 const http = require('http');
-const bodyParser = require('body-parser');
+//const bodyParser = require('body-parser');
 const httpServer = http.createServer(app);
-const io = require('socket.io');
+const socketIo = require('socket.io');
 const PORT = 4000;
-const ioServer = new io.Server(httpServer);
+const io = new socketIo.Server(httpServer);
 
 /*
 const corsOptions = {
@@ -42,20 +42,21 @@ const corsOptions = {
 };
 */
 
-const gameRooms = [];
+const players = [];
+const games = [];
 const nap = { x: "X", o: "O", tyhja: " " };
 
 const printGameData = (data) => {
   // Tulostetaan pelin tila ilman tyhjiä ruutuja
   const pelilautaEiTyhjia =
-    data.pelilauta.filter(N => N.nappula !== nap.tyhja);
+    data.pelilauta.filter((N) => N.nappula !== nap.tyhja);
 
   return { ...data, pelilauta: pelilautaEiTyhjia };
 };
 
 //app.use(cors(corsOptions));
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(express.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
   //res.sendFile(__dirname + '/../public/index.html');
@@ -68,19 +69,21 @@ app.get('/:id', (req, res) => {
   // Placeholder
 });
 
-ioServer.on('connection', (socket) => {
+io.on('connection', (socket) => {
   const omaID = socket.id;
 
   console.log('Socket connected:', omaID);
   socket.emit('gameId', omaID);
 
-  gameRooms.push({ id: omaID, state: {} });
-  console.log('Pelihuoneet:', gameRooms.map(G => G.id));
+  players.push({ hostId: omaID, guestId: '', state: {} });
+  console.log('Pelaajat', players.map((P) => P.hostId));
 
   socket.on('joinRoom', (data) => {
-    const index = gameRooms.findIndex(G => G.id === data.roomId);
+    const index = players
+      .findIndex((P) => P.hostId === data.roomId);
 
     if (index > -1) {
+      players[index].guestId = data.myId;
       socket.join(data.roomId);
 
       socket.emit(
@@ -92,21 +95,27 @@ ioServer.on('connection', (socket) => {
     };
   });
 
-  socket.on('gameData', (data) => {
-    const index = gameRooms.findIndex(G => G.id === socket.id);
+  socket.on('gameData', (gameState) => {
+    const index = players.findIndex((P) => P.hostId === socket.id);
+    players[index].state = gameState;
 
-    gameRooms[index].state = data;
+    const host = players[index].hostId;
+    const guest = players[index].guestId;
+
+    //io.to(host).to(guest).emit('gameData', gameState);
+    io.to(guest).emit('gameData', gameState);
 
     console.log(`Vastaanottettu ID=${socket.id}:`);
-    console.log(printGameData(data));
+    console.log(`Isäntä: ${host}, vieras: ${guest}`);
+    console.log(printGameData(gameState));
   });
 
   socket.on('disconnect', () => {
-    const index = gameRooms.findIndex(G => G.id === socket.id);
-    gameRooms.splice(index, 1);
+    const index = players.findIndex((P) => P.hostId === socket.id);
+    players.splice(index, 1);
 
     console.log('Socket disconnected:', omaID);
-    console.log('Pelihuoneet:', gameRooms.map(G => G.id));
+    console.log('Pelaajat', players.map((P) => P.hostId));
   });
 
 });

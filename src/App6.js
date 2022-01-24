@@ -1,10 +1,15 @@
-import React, { useState, useContext } from 'react';
-import { useEffect } from 'react/cjs/react.development';
+import React, { useEffect, useState, useContext } from 'react';
+//import { useEffect } from 'react/cjs/react.development';
 import './App.css';
 import RuutuCtx from './RuutuCtx.js';
 //import { render } from 'react-dom';
 import { store } from './store.js';
 
+const io = require('socket.io-client');
+const ioHost = 'http://localhost:4000';
+const ioHostOptions = {
+	transports: ['websocket', 'polling', 'flashsocket']
+};
 
 const Pelitila = {
 	NIMI_X_MUUTTUI: 'NIMI_X_MUUTTUI',
@@ -15,28 +20,24 @@ const Pelitila = {
 	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU'
 };
 
-const io = require('socket.io-client');
-const ioHost = 'http://localhost:4000';
-const ioHostOptions = {
-	transports: ['websocket', 'polling', 'flashsocket']
-};
+const nap = { x: "X", o: "O", tyhja: " " };
+
 
 // TÄRKEÄÄ OLLA APPIFUNKTION ULKOPUOLELLA!
-// --- Laita useEffectiin?
 const socket = io(ioHost, ioHostOptions);
 
 
 const App6 = () => {
 
+	const [OmaID, setOmaID] = useState('');
+	const [Nimimerkki, setNimimerkki] = useState('');
+	const [VastustajaNimi, setVastustajaNimi] = useState('');
+	const [VastustajaID, setVastustajaID] = useState('');
+	const [HuoneID, setHuoneID] = useState('');
 	// const [state, dispatch] = useReducer(reducer, initialState);
 	const globalState = useContext(store);
 	const { dispatch, state } = globalState;
 
-	const [OmaID, setOmaID] = useState('');
-	const [Nimimerkki, setNimimerkki] = useState('');
-	const [Vastustaja, setVastustaja] = useState('');
-	const [HuoneID, setHuoneID] = useState('');
-	
 	const nimiOMuuttui = (tapahtuma) => {
 		dispatch({
 			type: Pelitila.NIMI_O_MUUTTUI,
@@ -63,39 +64,48 @@ const App6 = () => {
 	};
 	const kenenVuoro = () => {
 		if (state.pelivuoroX) {
-			return 'X';
+			return nap.x;
 		} else {
-			return 'O';
+			return nap.o;
 		};
 	};
 	const liityHuoneeseen = () => {
-		socket.emit('joinRoom', { nick: Nimimerkki, roomId: HuoneID });
+		if (Nimimerkki.length > 0) {
+			socket.emit(
+				'joinRoom',
+				{ nick: Nimimerkki, myId: OmaID, roomId: HuoneID }
+			);
+		} else {
+			console.log('Anna nimimerkki!');
+		}
 	};
 
-	// ----------------------------------------------------------
 
-	// Laita App6:n ulkopuolelle?
-	socket.on('gameId', (id) => {
-		console.log('Sinun socket-ID:', id);
-		setOmaID(id);
-	});
+	useEffect(() => {
+		socket.on('gameId', (id) => {
+			console.log('Sinun socket-ID:', id);
+			setOmaID(id);
+		});
 
-	// Laita App6:n ulkopuolelle?
-	socket.on('joinedMyRoom', (data) => {
-		setVastustaja(data.nick);
-		console.log(
-			`${data.nick} (ID=${data.roomId}) liittyi peliin.`
-		);
-	});
+		socket.on('joinedMyRoom', (data) => {
+			//setVastustajaNimi({ nimi: data.nick, id: data.roomId });
+			setVastustajaNimi(data.nick);
+			setVastustajaID(data.myId);
 
-	// Laita App6:n ulkopuolelle?
-	socket.on('serverMessage', (msg) => {
-		console.log(msg);
-	});
+			console.log(
+				`${data.nick} (ID=${data.myId}) liittyi peliin.`
+			);
+		});
 
-	// Laita App6:n ulkopuolelle?
-	socket.on('gameData', (data) => {
+		socket.on('serverMessage', (msg) => {
+			console.log(msg);
+		});
+	}, []);
 
+	useEffect(() => {
+		socket.on('gameData', (gameState) => {
+			
+		});
 	});
 
 	useEffect(() => {
@@ -107,8 +117,22 @@ const App6 = () => {
 	}, [HuoneID]);
 
 	useEffect(() => {
+		if (
+			Nimimerkki.length > 0 && VastustajaNimi.length > 0) {
+			dispatch({
+				type: Pelitila.NIMI_X_MUUTTUI,
+				data: Nimimerkki
+			});
+			dispatch({
+				type: Pelitila.NIMI_O_MUUTTUI,
+				data: VastustajaNimi
+			});
+		};
+	}, [dispatch, Nimimerkki, VastustajaNimi]);
+
+	useEffect(() => {
 		if (state.peliKaynnissa) {
-			socket.emit('gamedata', state);
+			socket.emit('gameData', state);
 		};
 	}, [state]);
 
@@ -124,7 +148,7 @@ const App6 = () => {
 					&& <div>Kirjoita pidemmät nimet!</div>
 				*/}
 				<div className='div-aula'>
-					Nimimerkkisi: &nbsp;
+					Nimimerkkisi (X): &nbsp;
 					<input
 						className='input-xo'
 						type='text'
@@ -133,16 +157,22 @@ const App6 = () => {
 							setNimimerkki(event.target.value)
 						}>
 					</input>
+					&nbsp; Vastustaja (O): {VastustajaNimi}
+					{
+						Nimimerkki.length === 0
+						&&
+						<div>Syötä nimimerkki!</div>
+					}
 					{
 						!state.peliKaynnissa
 						&&
 						<div>
 							<div>Sinun ID: {OmaID}</div>
-							<div>
-								Vastustaja: {Vastustaja}
-							</div>
+							{/*<div>
+								Vastustaja: {VastustajaNimi}
+							</div>*/}
 							{
-								Vastustaja.length > 0
+								VastustajaNimi.length > 0
 								&& <div className='div-nappula'>
 									<button
 										className='button-xo'
@@ -152,7 +182,7 @@ const App6 = () => {
 								</div>
 							}
 							{
-								Vastustaja.length === 0
+								VastustajaNimi.length === 0
 								&& <div>
 									Huoneen ID: &nbsp;
 									<input

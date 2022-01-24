@@ -12,7 +12,7 @@ const Pelitila = {
 
 // CUSTOM PELILAUTA (N ristiä/nollaa peräkkäin voittoon)
 const N = 5;
-const leveys = 30;
+const leveys = 20;
 const korkeus = 20;
 const nap = { x: "X", o: "O", tyhja: " " };
 
