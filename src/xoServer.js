@@ -43,7 +43,7 @@ const corsOptions = {
 */
 
 const players = [];
-const games = [];
+const gameRooms = [];
 const nap = { x: "X", o: "O", tyhja: " " };
 
 const printGameData = (data) => {
@@ -63,12 +63,6 @@ app.get('/', (req, res) => {
   res.send('xoServer.js kuittaa').status(200);
 });
 
-// Voidaan hakea tietty peli ID:n avulla
-app.get('/:id', (req, res) => {
-  const omaID = req.params.id;
-  // Placeholder
-});
-
 io.on('connection', (socket) => {
   const omaID = socket.id;
 
@@ -76,26 +70,85 @@ io.on('connection', (socket) => {
   socket.emit('gameId', omaID);
 
   players.push({ hostId: omaID, guestId: '', state: {} });
-  console.log('Pelaajat', players.map((P) => P.hostId));
+  console.log('Pelaajat:', players.map((P) => P.hostId));
 
   socket.on('joinRoom', (data) => {
-    const index = players
-      .findIndex((P) => P.hostId === data.roomId);
+    const roomIndex
+      = gameRooms.findIndex((R) => R.name === data.roomId);
 
-    if (index > -1) {
-      players[index].guestId = data.myId;
-      socket.join(data.roomId);
+    if (roomIndex > -1) {
+      if (Object.keys(gameRooms[roomIndex].guest).length > 0) {
+        socket.emit('serverMessage', 'Huone on täynnä!');
+      } else {
+        gameRooms[roomIndex].guest
+          = { id: data.playerId, nick: data.nick };
+        socket.emit(
+          'serverMessage',
+          `Liityit huoneeseen ${data.roomId}`
+        );
+        socket.to(gameRooms[roomIndex].creator)
+          .emit('joinedMyRoom', data);
 
-      socket.emit(
-        'serverMessage',
-        `Olet liittynyt huoneeseen ${data.roomId}.`);
-      socket.to(data.roomId).emit('joinedMyRoom', data);
+        console.log('Huoneet:', gameRooms);
+      };
     } else {
       socket.emit('serverMessage', 'Huonetta ei löydy!');
     };
   });
 
+  socket.on('createRoom', (data) => {
+    const room = data.room;
+    const index = gameRooms.findIndex((R) => R.name === room);
+
+    if (index === -1) {
+      // Huonetta ei vielä ole
+      gameRooms.push({
+        name: room,
+        creator: socket.id,
+        guest: {}
+      });
+
+      socket.join(room);
+      socket.emit('serverMessage', `Huone ${room} luotu!`);
+      socket.emit(
+        'serverMessage',
+        `Huoneet joissa olet: ${socket.rooms}`
+      );
+
+      console.log('Huoneet:', gameRooms);
+    } else {
+      // Huone on jo olemassa
+      socket.emit('serverMessage', 'Huone on jo olemassa!');
+    };
+  });
+
+  // TODO: pelidatan välitys: pelaaja 1 <--> huone <--> pelaaja 2
   socket.on('gameData', (gameState) => {
+    /*
+    const sender = socket.id;
+    const guestIndex
+      = players.findIndex((P) => P.guestId === sender);
+    console.log('guestindex:', guestIndex);
+    const hostIndex
+      = players.findIndex((P) => P.hostId === sender);
+    console.log('hostindex:', hostIndex);
+    let host = '';
+    let guest = '';
+
+    if (guestIndex > -1) {
+      // Olet pelin vieras
+      host = players[guestIndex].hostId;
+      guest = sender;
+      io.to(host).emit('gameData', gameState);
+    } else {
+      // Olet pelin isäntä
+      host = sender;
+      guest = players[hostIndex].guestId;
+      io.to(guest).emit('gameData', gameState);
+    };
+    */
+
+    /*
     const index = players.findIndex((P) => P.hostId === socket.id);
     players[index].state = gameState;
 
@@ -104,6 +157,7 @@ io.on('connection', (socket) => {
 
     //io.to(host).to(guest).emit('gameData', gameState);
     io.to(guest).emit('gameData', gameState);
+    */
 
     console.log(`Vastaanottettu ID=${socket.id}:`);
     console.log(`Isäntä: ${host}, vieras: ${guest}`);
@@ -111,11 +165,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    const index = players.findIndex((P) => P.hostId === socket.id);
-    players.splice(index, 1);
+    const playerIndex
+      = players.findIndex((P) => P.hostId === socket.id);
+    const roomIndex
+      = gameRooms.findIndex((R) => R.creator === socket.id);
+
+    players.splice(playerIndex, 1);
+    gameRooms.splice(roomIndex, 1);
 
     console.log('Socket disconnected:', omaID);
     console.log('Pelaajat', players.map((P) => P.hostId));
+    console.log('Huoneet:', gameRooms);
   });
 
 });
@@ -123,5 +183,3 @@ io.on('connection', (socket) => {
 httpServer.listen(PORT, () => {
   console.log(`Listening on http://localhost:${PORT}\r\n`);
 });
-
-console.log(__dirname);

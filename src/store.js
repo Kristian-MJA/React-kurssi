@@ -7,7 +7,8 @@ const Pelitila = {
 	ALOITA_PAINETTU: 'ALOITA_PAINETTU',
 	RUUTU_VALITTU: 'RUUTU_VALITTU',
 	PELI_OHI: 'PELI_OHI',
-	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU'
+	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU',
+	TILAN_VALITYS: 'TILAN_VALITYS'
 };
 
 // CUSTOM PELILAUTA (N ristiä/nollaa peräkkäin voittoon)
@@ -250,6 +251,11 @@ const StateProvider = ({ children }) => {
 				};
 				kopio.pelivuoroX = Math.random() < 0.5;
 				kopio.voittaja = -1;
+				break;
+
+			case Pelitila.TILAN_VALITYS:
+				kopio = { ...action.data };
+				console.log(kopio);
 				break;
 
 			default:

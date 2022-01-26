@@ -17,7 +17,8 @@ const Pelitila = {
 	ALOITA_PAINETTU: 'ALOITA_PAINETTU',
 	RUUTU_VALITTU: 'RUUTU_VALITTU',
 	PELI_OHI: 'PELI_OHI',
-	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU'
+	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU',
+	TILAN_VALITYS: 'TILAN_VALITYS'
 };
 
 const nap = { x: "X", o: "O", tyhja: " " };
@@ -29,14 +30,19 @@ const socket = io(ioHost, ioHostOptions);
 
 const App6 = () => {
 
-	const [OmaID, setOmaID] = useState('');
-	const [Nimimerkki, setNimimerkki] = useState('');
-	const [VastustajaNimi, setVastustajaNimi] = useState('');
-	const [VastustajaID, setVastustajaID] = useState('');
-	const [HuoneID, setHuoneID] = useState('');
 	// const [state, dispatch] = useReducer(reducer, initialState);
 	const globalState = useContext(store);
 	const { dispatch, state } = globalState;
+
+	const [OmaID, setOmaID] = useState('');
+	const [OmaNimi, setOmaNimi] = useState('');
+	//const [Nimimerkki, setNimimerkki] = useState('');
+	const [VierasID, setVierasID] = useState('');
+	const [VierasNimi, setVierasNimi] = useState('');
+	//const [VastustajaNimi, setVastustajaNimi] = useState('');
+	//const [VastustajaID, setVastustajaID] = useState('');
+	const [HuoneID, setHuoneID] = useState('');
+	const [LuotuHuone, setLuotuHuone] = useState('');
 
 	const nimiOMuuttui = (tapahtuma) => {
 		dispatch({
@@ -70,14 +76,19 @@ const App6 = () => {
 		};
 	};
 	const liityHuoneeseen = () => {
-		if (Nimimerkki.length > 0) {
+		if (OmaNimi.length > 0) {
 			socket.emit(
 				'joinRoom',
-				{ nick: Nimimerkki, myId: OmaID, roomId: HuoneID }
+				{ nick: OmaNimi, playerId: OmaID, roomId: HuoneID }
 			);
 		} else {
 			console.log('Anna nimimerkki!');
-		}
+		};
+	};
+	const luoHuone = () => {
+		if (LuotuHuone.length > 0) {
+			socket.emit('createRoom', { room: LuotuHuone });
+		};
 	};
 
 
@@ -87,38 +98,66 @@ const App6 = () => {
 			setOmaID(id);
 		});
 
-		socket.on('joinedMyRoom', (data) => {
-			//setVastustajaNimi({ nimi: data.nick, id: data.roomId });
-			setVastustajaNimi(data.nick);
-			setVastustajaID(data.myId);
-
-			console.log(
-				`${data.nick} (ID=${data.myId}) liittyi peliin.`
-			);
-		});
-
 		socket.on('serverMessage', (msg) => {
 			console.log(msg);
 		});
 	}, []);
 
 	useEffect(() => {
-		socket.on('gameData', (gameState) => {
-			
+		socket.on('joinedMyRoom', (data) => {
+			setVierasNimi(data.nick);
+			setVierasID(data.playerId);
 		});
-	});
+
+		if (VierasNimi.length > 0) {
+			console.log(
+				`${VierasNimi} liittyi huoneeseesi ${LuotuHuone}`
+			);
+		};
+	}, [LuotuHuone, VierasNimi]);
 
 	useEffect(() => {
-		console.log('Nimimerkki:', Nimimerkki);
-	}, [Nimimerkki]);
+		/*
+		// --- asdasdasddagfkds alla oleva on väärin
+		// Dataa vastaanottaa vain huoneeseen liittynyt vieraspelaaja
+		socket.on('gameData', (gameState) => {
+			dispatch({
+				type: Pelitila.TILAN_VALITYS,
+				data: gameState
+			});
+			console.log('Vastaanotit pelidataa:', gameState);
+		});
+		*/
+	}, [dispatch]);
+
+	useEffect(() => {
+		console.log('Nimimerkkisi:', OmaNimi);
+	}, [OmaNimi]);
 
 	useEffect(() => {
 		console.log('Syötetty huone:', HuoneID)
 	}, [HuoneID]);
 
 	useEffect(() => {
-		if (
-			Nimimerkki.length > 0 && VastustajaNimi.length > 0) {
+		console.log('Luotu huone:', LuotuHuone)
+	}, [LuotuHuone]);
+
+	useEffect(() => {
+		if (OmaNimi.length > 0 && VierasNimi.length > 0) {
+			dispatch({
+				type: Pelitila.NIMI_X_MUUTTUI,
+				data: OmaNimi
+			});
+			dispatch({
+				type: Pelitila.NIMI_O_MUUTTUI,
+				data: VierasNimi
+			});
+		};
+	}, [dispatch, OmaNimi, VierasNimi]);
+
+	/*
+	useEffect(() => {
+		if (Nimimerkki.length > 0 && VastustajaNimi.length > 0) {
 			dispatch({
 				type: Pelitila.NIMI_X_MUUTTUI,
 				data: Nimimerkki
@@ -129,10 +168,12 @@ const App6 = () => {
 			});
 		};
 	}, [dispatch, Nimimerkki, VastustajaNimi]);
+	*/
 
+	// TODO: pelidatan välitys: pelaaja 1 <--> huone <--> pelaaja 2
 	useEffect(() => {
 		if (state.peliKaynnissa) {
-			socket.emit('gameData', state);
+			//socket.emit('gameData', state);
 		};
 	}, [state]);
 
@@ -152,14 +193,16 @@ const App6 = () => {
 					<input
 						className='input-xo'
 						type='text'
-						value={Nimimerkki}
+						//value={Nimimerkki}
+						value={OmaNimi}
 						onChange={(event) =>
-							setNimimerkki(event.target.value)
+							setOmaNimi(event.target.value)
 						}>
 					</input>
-					&nbsp; Vastustaja (O): {VastustajaNimi}
+					&nbsp; Vastustaja (O): {VierasNimi}
 					{
-						Nimimerkki.length === 0
+						//Nimimerkki.length === 0
+						OmaNimi.length === 0
 						&&
 						<div>Syötä nimimerkki!</div>
 					}
@@ -172,7 +215,28 @@ const App6 = () => {
 								Vastustaja: {VastustajaNimi}
 							</div>*/}
 							{
-								VastustajaNimi.length > 0
+								<div>
+									Luo huone: &nbsp;
+									<input
+										className='input-xo'
+										type='text'
+										value={LuotuHuone}
+										onChange={(event) =>
+											setLuotuHuone(event.target.value)
+										}>
+									</input>
+									<div className='div-nappula'>
+										<button
+											className='button-xo'
+											onClick={() => luoHuone()}>
+											Luo huone
+										</button>
+									</div>
+								</div>
+							}
+							{
+								//VastustajaNimi.length > 0
+								VierasNimi.length > 0
 								&& <div className='div-nappula'>
 									<button
 										className='button-xo'
@@ -182,7 +246,8 @@ const App6 = () => {
 								</div>
 							}
 							{
-								VastustajaNimi.length === 0
+								//VastustajaNimi.length === 0
+								VierasNimi.length === 0
 								&& <div>
 									Huoneen ID: &nbsp;
 									<input

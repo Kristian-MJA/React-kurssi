@@ -8,8 +8,12 @@ const Pelitila = {
 	ALOITA_PAINETTU: 'ALOITA_PAINETTU',
 	RUUTU_VALITTU: 'RUUTU_VALITTU',
 	PELI_OHI: 'PELI_OHI',
-	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU'
+	UUSIPELI_PAINETTU: 'UUSIPELI_PAINETTU',
+	TILAN_VALITYS: 'TILAN_VALITYS'
 };
+
+const nap = { x: "X", o: "O", tyhja: " " };
+
 
 export function Ruutu(props) {
 	const globalState = useContext(store);
@@ -17,7 +21,7 @@ export function Ruutu(props) {
 	const { dispatch } = globalState;
 	let buttonClass = "peliruutu-1";
 
-	if (props.ruuduntila.nappula === "O") {
+	if (props.ruuduntila.nappula === nap.o) {
 		buttonClass = "peliruutu-2";
 	};
 
