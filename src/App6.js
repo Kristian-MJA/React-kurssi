@@ -30,6 +30,12 @@ const socket = io(ioHost, ioHostOptions);
 
 const App6 = () => {
 
+	/*
+	const foo = () => {
+		console.log('bar');
+	};
+	*/
+
 	// const [state, dispatch] = useReducer(reducer, initialState);
 	const globalState = useContext(store);
 	const { dispatch, state } = globalState;
